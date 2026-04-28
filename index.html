@@ -448,6 +448,90 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
 .goal-item .gv { font-size:18px; font-weight:700; color:var(--accent); }
 .goal-item .gs { font-size:10px; color:var(--txt3); }
 
+/* ── LIVE DEAL TRACKER ── */
+.tracker-card {
+  background: linear-gradient(135deg, #0F2557 0%, #1A3A8F 60%, #1D4ED8 100%);
+  border: none; color: white; border-radius: var(--r-xl);
+  padding: clamp(14px,3vw,20px) clamp(16px,4vw,22px);
+  margin-bottom: 14px; box-shadow: 0 6px 24px rgba(29,78,216,.35);
+  position: relative; overflow: hidden;
+}
+.tracker-card::before {
+  content:''; position:absolute; top:-30px; right:-30px;
+  width:140px; height:140px; background:rgba(255,255,255,.05);
+  border-radius:50%; pointer-events:none;
+}
+.tracker-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.tracker-title {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .12em; opacity: .65;
+  display: flex; align-items: center; gap: 6px;
+}
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #4ADE80; box-shadow: 0 0 6px #4ADE80;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)}
+}
+.tracker-grid {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 10px; position: relative; z-index: 1;
+}
+.tracker-tile .tkt-l {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .07em; opacity: .6; margin-bottom: 4px; line-height: 1.2;
+}
+.tracker-tile .tkt-v {
+  font-size: clamp(14px,3.2vw,19px); font-weight: 700;
+  letter-spacing: -.4px; line-height: 1; word-break: break-all;
+}
+.tracker-tile .tkt-s { font-size: 10px; opacity: .5; margin-top: 3px; }
+.tracker-tile.pos .tkt-v { color: #86EFAC; }
+.tracker-tile.neg .tkt-v { color: #FCA5A5; }
+.tracker-tile.warn .tkt-v { color: #FCD34D; }
+.tracker-bar-wrap { margin-top: 14px; position: relative; z-index:1; }
+.tracker-bar-label {
+  display: flex; justify-content: space-between;
+  font-size: 10px; opacity: .6; margin-bottom: 5px;
+}
+.tracker-bar-bg {
+  height: 5px; background: rgba(255,255,255,.18);
+  border-radius: 50px; overflow: hidden;
+}
+.tracker-bar-fill {
+  height: 100%; border-radius: 50px;
+  background: linear-gradient(90deg, #60A5FA, #86EFAC);
+  transition: width .4s ease;
+  min-width: 0; max-width: 100%;
+}
+.tracker-goal-badges {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;
+  position: relative; z-index:1;
+}
+.tgb {
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 50px;
+  font-size: 10px; font-weight: 600;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.18);
+}
+.tgb.met { background: rgba(74,222,128,.18); border-color: rgba(74,222,128,.4); color: #86EFAC; }
+.tgb.unmet { background: rgba(252,165,165,.14); border-color: rgba(252,165,165,.35); color: #FCA5A5; }
+.tgb.na { opacity: .5; }
+
+/* ── INLINE GOALS EDITOR ── */
+.goals-edit-section { margin-top: 16px; }
+.goals-inline-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.goals-inline-field { display: flex; flex-direction: column; gap: 4px; }
+.goals-inline-field label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--txt3); }
+.goals-save-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+.goals-saved-msg { font-size: 12px; color: var(--green); font-weight: 600; min-height: 16px; }
+
 /* ── EMPTY STATE ── */
 .empty-state { text-align:center; padding:40px 20px; }
 .empty-state .ei { font-size:40px; margin-bottom:12px; }
@@ -488,10 +572,12 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
 /* ── RESPONSIVE ── */
 @media (max-width:640px) {
   .metrics-grid { grid-template-columns:repeat(2,1fr); }
+  .tracker-grid { grid-template-columns:repeat(2,1fr); }
   .g3 { grid-template-columns:repeat(2,1fr); }
   .invest-grid { grid-template-columns:repeat(2,1fr); }
   .an-table td.tn { display:none; }
   .goal-grid { grid-template-columns:repeat(2,1fr); }
+  .goals-inline-grid { grid-template-columns:repeat(2,1fr); }
 }
 @media (max-width:480px) {
   .page { padding:12px 10px 48px; }
@@ -667,6 +753,47 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
 
   <!-- ── ANALYZER ── -->
   <div id="tab-a">
+
+    <!-- LIVE DEAL TRACKER -->
+    <div class="tracker-card" id="live-tracker">
+      <div class="tracker-header">
+        <div class="tracker-title">
+          <span class="live-dot"></span>
+          Live Deal Tracker
+        </div>
+        <span style="font-size:10px;opacity:.5">Updates as you type</span>
+      </div>
+      <div class="tracker-grid">
+        <div class="tracker-tile" id="trk-cash">
+          <div class="tkt-l">Cash to Close</div>
+          <div class="tkt-v" id="trk-cash-v">$0</div>
+          <div class="tkt-s">out of pocket</div>
+        </div>
+        <div class="tracker-tile" id="trk-cost">
+          <div class="tkt-l">Monthly Cost</div>
+          <div class="tkt-v" id="trk-cost-v">$0</div>
+          <div class="tkt-s">all expenses + mortgage</div>
+        </div>
+        <div class="tracker-tile" id="trk-inc">
+          <div class="tkt-l">Monthly Income</div>
+          <div class="tkt-v" id="trk-inc-v">$0</div>
+          <div class="tkt-s">rent + other</div>
+        </div>
+        <div class="tracker-tile" id="trk-cf">
+          <div class="tkt-l">Net Cash Flow</div>
+          <div class="tkt-v" id="trk-cf-v">$0</div>
+          <div class="tkt-s">per month</div>
+        </div>
+      </div>
+      <div class="tracker-bar-wrap" id="trk-bar-wrap" style="display:none">
+        <div class="tracker-bar-label">
+          <span>Cash deployed</span>
+          <span id="trk-bar-pct">0%</span>
+        </div>
+        <div class="tracker-bar-bg"><div class="tracker-bar-fill" id="trk-bar-fill" style="width:0%"></div></div>
+      </div>
+      <div class="tracker-goal-badges" id="trk-badges"></div>
+    </div>
     <div class="card sum-card" id="sumbar" style="display:none">
       <div class="sum-lbl">Deal Summary</div>
       <div class="metrics-grid">
@@ -857,10 +984,62 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
 
     <div class="card" id="goals-card" style="display:none">
       <div class="card-title">Investment Goals &amp; Defaults</div>
-      <div class="goal-grid" id="goals-grid"></div>
-      <div id="profile-notes-wrap" style="display:none;margin-top:16px">
+
+      <!-- static view shown when not editing -->
+      <div id="goals-view">
+        <div class="goal-grid" id="goals-grid"></div>
+        <div id="profile-notes-wrap" style="display:none;margin-top:16px">
+          <div class="subsection">Notes &amp; Strategy</div>
+          <p id="profile-notes-text" style="font-size:13px;color:var(--txt2);line-height:1.7"></p>
+        </div>
+        <button class="btn btn-s btn-sm" onclick="toggleGoalsEdit(true)" style="margin-top:16px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit Goals &amp; Defaults
+        </button>
+      </div>
+
+      <!-- inline edit form -->
+      <div id="goals-edit" style="display:none">
+        <div class="subsection" style="margin-top:0">Investment Goals</div>
+        <div class="goals-inline-grid">
+          <div class="goals-inline-field">
+            <label>Target CoC Return</label>
+            <div class="iw"><input type="number" id="ge-coc" placeholder="8" inputmode="decimal"><span class="px r">%</span></div>
+          </div>
+          <div class="goals-inline-field">
+            <label>Target Cap Rate</label>
+            <div class="iw"><input type="number" id="ge-cap" placeholder="6" inputmode="decimal"><span class="px r">%</span></div>
+          </div>
+          <div class="goals-inline-field">
+            <label>Min Monthly CF</label>
+            <div class="iw"><span class="px l">$</span><input type="number" id="ge-cf" placeholder="200" inputmode="decimal"></div>
+          </div>
+        </div>
+        <div class="subsection">Analyzer Defaults</div>
+        <div class="goals-inline-grid">
+          <div class="goals-inline-field">
+            <label>Default Vacancy %</label>
+            <div class="iw"><input type="number" id="ge-vac" placeholder="5" inputmode="decimal"><span class="px r">%</span></div>
+          </div>
+          <div class="goals-inline-field">
+            <label>Default Closing Costs</label>
+            <div class="iw"><input type="number" id="ge-cc" placeholder="3" inputmode="decimal"><span class="px r">%</span></div>
+          </div>
+          <div class="goals-inline-field">
+            <label>Default Down Payment</label>
+            <div class="iw"><input type="number" id="ge-dp" placeholder="20" inputmode="decimal"><span class="px r">%</span></div>
+          </div>
+        </div>
         <div class="subsection">Notes &amp; Strategy</div>
-        <p id="profile-notes-text" style="font-size:13px;color:var(--txt2);line-height:1.7"></p>
+        <div class="iw"><textarea id="ge-notes" placeholder="Investment strategy, goals, notes..."></textarea></div>
+        <div class="goals-save-row">
+          <button class="btn btn-p btn-sm" onclick="saveGoalsInline()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Save Goals
+          </button>
+          <button class="btn btn-s btn-sm" onclick="toggleGoalsEdit(false)">Cancel</button>
+          <span class="goals-saved-msg" id="goals-saved-msg"></span>
+        </div>
       </div>
     </div>
 
@@ -1060,7 +1239,90 @@ function showTab(t){
 function getForm(){return{name:sv('sc-name'),address:sv('addr'),pp:sv('pp'),arv:sv('arv'),dpMode,dpV:sv('dp-v'),cc:sv('cc'),rehab:sv('rehab'),ir:sv('ir'),lt:sv('lt'),rent:sv('rent'),othInc:sv('oth-inc'),vac:sv('vac'),ptax:sv('ptax'),ins:sv('ins'),hoa:sv('hoa'),pmg:sv('pmg'),maint:sv('maint'),capex:sv('capex'),elec:sv('elec'),watr:sv('watr'),gas:sv('gas'),trash:sv('trash'),inet:sv('inet'),lawn:sv('lawn'),pest:sv('pest'),snow:sv('snow'),adv:sv('adv'),othExp:sv('oth-exp')};}
 function setForm(d){const set=(id,v)=>{const el=$(id);if(el)el.value=v||''};dpMode=d.dpMode||'pct';updateDPUI();set('sc-name',d.name);set('addr',d.address);set('pp',d.pp);set('arv',d.arv);set('dp-v',d.dpV);set('cc',d.cc||'3');set('rehab',d.rehab);set('ir',d.ir||'7.5');set('lt',d.lt||'30');set('rent',d.rent);set('oth-inc',d.othInc);set('vac',d.vac||'5');set('ptax',d.ptax);set('ins',d.ins);set('hoa',d.hoa);set('pmg',d.pmg);set('maint',d.maint);set('capex',d.capex);set('elec',d.elec);set('watr',d.watr);set('gas',d.gas);set('trash',d.trash);set('inet',d.inet);set('lawn',d.lawn);set('pest',d.pest);set('snow',d.snow);set('adv',d.adv);set('oth-exp',d.othExp);calc();}
 function compute(d){const pp=parseFloat(d.pp)||0,dv=parseFloat(d.dpV)||0;const dp=d.dpMode==='pct'?pp*dv/100:dv;const cc=pp*(parseFloat(d.cc)||0)/100,rehab=parseFloat(d.rehab)||0;const ti=dp+cc+rehab,la=pp-dp;const ir=parseFloat(d.ir)||0,lt=parseFloat(d.lt)||30;const mp=mCalc(la,ir,lt);const rent=parseFloat(d.rent)||0,oi=parseFloat(d.othInc)||0;const gi=rent+oi,vl=rent*(parseFloat(d.vac)||0)/100,egi=gi-vl;const pma=rent*(parseFloat(d.pmg)||0)/100;const utils=[d.elec,d.watr,d.gas,d.trash,d.inet].reduce((s,v)=>s+(parseFloat(v)||0),0);const opex=[d.ptax,d.ins,d.hoa,d.maint,d.capex,d.lawn,d.pest,d.snow,d.adv,d.othExp].reduce((s,v)=>s+(parseFloat(v)||0),0)+pma+utils;const noi=(egi-opex)*12,mnoi=egi-opex,mcf=mnoi-mp,acf=mcf*12;const coc=ti>0?(acf/ti)*100:0,cr=pp>0?(noi/pp)*100:0,grm=rent>0?pp/(rent*12):0;return{pp,dp,cc,rehab,ti,la,ir,lt,mp,rent,oi,gi,vl,egi,pma,utils,opex,noi,mnoi,mcf,acf,coc,cr,grm};}
-function calc(){const d=getForm(),c=compute(d);$('v-vac').textContent=c.rent>0?f$(c.vl):'—';$('v-utils').textContent=f$(c.utils);$('pmg-hint').textContent=c.pma>0?'= '+f$(c.pma)+'/mo':'';$('v-mort').textContent=c.mp>0?f$d(c.mp):'—';$('mort-hint').textContent=c.la>0&&c.mp>0?`Loan: ${f$(c.la)} · Total: ${f$(c.mp*c.lt*12)} · Interest: ${f$(c.mp*c.lt*12-c.la)}`:'';if(c.pp>0){$('inv-sum').style.display='block';$('inv-grid').innerHTML=[['Down Pmt',f$(c.dp)],['Closing',f$(c.cc)],['Rehab',f$(c.rehab)],['Total',f$(c.ti)]].map(([l,v])=>`<div class="invest-item"><div class="il">${l}</div><div class="iv">${v}</div></div>`).join('');}else{$('inv-sum').style.display='none';}$('v-opex').textContent=f$(c.opex);$('v-msub').textContent=f$(c.mp);$('v-out').textContent=f$(c.opex+c.mp);const show=c.pp>0||c.rent>0;$('sumbar').style.display=show?'block':'none';if(show){$('v-mcf').textContent=f$(c.mcf);$('v-acf').textContent=f$(c.acf);$('v-coc').textContent=fp(c.coc);$('v-cap').textContent=fp(c.cr);$('mt-mcf').className='metric-tile '+(c.mcf>=0?'pos':'neg');$('mt-acf').className='metric-tile '+(c.acf>=0?'pos':'neg');$('mt-coc').className='metric-tile '+(c.coc>=(_profile.goals?.coc||8)?'pos':c.coc<0?'neg':'');}if(c.pp>0&&c.rent>0){$('full-an').style.display='block';const rows=[{h:'Income'},{l:'Gross Rental Income',v:f$(c.rent),n:'/mo'},{l:'Other Income',v:f$(c.oi),n:'/mo'},{l:'Vacancy Loss',v:'− '+f$(c.vl),n:fp(parseFloat(d.vac)||0,1)+' of rent'},{l:'Effective Gross Income',v:f$(c.egi),n:'/mo',b:true},{h:'Expenses'},{l:'Operating Expenses',v:'− '+f$(c.opex),n:'/mo'},{l:'Mortgage Payment',v:'− '+f$(c.mp),n:'/mo'},{h:'Results'},{l:'Net Operating Income',v:f$(c.mnoi),n:'/mo · '+f$(c.noi)+'/yr'},{l:'Monthly Cash Flow',v:f$(c.mcf),n:'',b:true,sg:c.mcf},{l:'Annual Cash Flow',v:f$(c.acf),n:'',b:true,sg:c.acf},{l:'Cash-on-Cash Return',v:fp(c.coc),n:'annual',b:true,sg:c.coc},{l:'Cap Rate',v:fp(c.cr),n:'NOI÷price',b:true},{l:'GRM',v:c.grm>0?c.grm.toFixed(1)+'x':'—',n:''},{l:'Total Investment',v:f$(c.ti),n:'DP+CC+Rehab'}];$('an-body').innerHTML=rows.map(r=>{if(r.h)return`<tr class="sec-row"><td colspan="3">${r.h}</td></tr>`;const pos=r.sg!==undefined&&r.sg>=0,neg=r.sg!==undefined&&r.sg<0;const cls=[r.b?'hl':'',pos?'pos':neg?'neg':''].filter(Boolean).join(' ');return`<tr class="${cls}"><td class="tl">${r.l}</td><td class="tv">${r.v}</td><td class="tn">${r.n}</td></tr>`;}).join('');}else{$('full-an').style.display='none';}}
+function calc(){const d=getForm(),c=compute(d);$('v-vac').textContent=c.rent>0?f$(c.vl):'—';$('v-utils').textContent=f$(c.utils);$('pmg-hint').textContent=c.pma>0?'= '+f$(c.pma)+'/mo':'';$('v-mort').textContent=c.mp>0?f$d(c.mp):'—';$('mort-hint').textContent=c.la>0&&c.mp>0?`Loan: ${f$(c.la)} · Total: ${f$(c.mp*c.lt*12)} · Interest: ${f$(c.mp*c.lt*12-c.la)}`:'';if(c.pp>0){$('inv-sum').style.display='block';$('inv-grid').innerHTML=[['Down Pmt',f$(c.dp)],['Closing',f$(c.cc)],['Rehab',f$(c.rehab)],['Total',f$(c.ti)]].map(([l,v])=>`<div class="invest-item"><div class="il">${l}</div><div class="iv">${v}</div></div>`).join('');}else{$('inv-sum').style.display='none';}$('v-opex').textContent=f$(c.opex);$('v-msub').textContent=f$(c.mp);$('v-out').textContent=f$(c.opex+c.mp);const show=c.pp>0||c.rent>0;$('sumbar').style.display=show?'block':'none';if(show){$('v-mcf').textContent=f$(c.mcf);$('v-acf').textContent=f$(c.acf);$('v-coc').textContent=fp(c.coc);$('v-cap').textContent=fp(c.cr);$('mt-mcf').className='metric-tile '+(c.mcf>=0?'pos':'neg');$('mt-acf').className='metric-tile '+(c.acf>=0?'pos':'neg');$('mt-coc').className='metric-tile '+(c.coc>=(_profile.goals?.coc||8)?'pos':c.coc<0?'neg':'');}if(c.pp>0&&c.rent>0){$('full-an').style.display='block';const rows=[{h:'Income'},{l:'Gross Rental Income',v:f$(c.rent),n:'/mo'},{l:'Other Income',v:f$(c.oi),n:'/mo'},{l:'Vacancy Loss',v:'− '+f$(c.vl),n:fp(parseFloat(d.vac)||0,1)+' of rent'},{l:'Effective Gross Income',v:f$(c.egi),n:'/mo',b:true},{h:'Expenses'},{l:'Operating Expenses',v:'− '+f$(c.opex),n:'/mo'},{l:'Mortgage Payment',v:'− '+f$(c.mp),n:'/mo'},{h:'Results'},{l:'Net Operating Income',v:f$(c.mnoi),n:'/mo · '+f$(c.noi)+'/yr'},{l:'Monthly Cash Flow',v:f$(c.mcf),n:'',b:true,sg:c.mcf},{l:'Annual Cash Flow',v:f$(c.acf),n:'',b:true,sg:c.acf},{l:'Cash-on-Cash Return',v:fp(c.coc),n:'annual',b:true,sg:c.coc},{l:'Cap Rate',v:fp(c.cr),n:'NOI÷price',b:true},{l:'GRM',v:c.grm>0?c.grm.toFixed(1)+'x':'—',n:''},{l:'Total Investment',v:f$(c.ti),n:'DP+CC+Rehab'}];$('an-body').innerHTML=rows.map(r=>{if(r.h)return`<tr class="sec-row"><td colspan="3">${r.h}</td></tr>`;const pos=r.sg!==undefined&&r.sg>=0,neg=r.sg!==undefined&&r.sg<0;const cls=[r.b?'hl':'',pos?'pos':neg?'neg':''].filter(Boolean).join(' ');return`<tr class="${cls}"><td class="tl">${r.l}</td><td class="tv">${r.v}</td><td class="tn">${r.n}</td></tr>`;}).join('');}else{$('full-an').style.display='none';}
+  updateTracker(c);
+}
+
+/* ── LIVE DEAL TRACKER ── */
+function updateTracker(c){
+  // Cash tile
+  $('trk-cash-v').textContent=f$(c.ti);
+  $('trk-cash').className='tracker-tile'+(c.ti>0?' warn':'');
+  // Monthly cost
+  const totalOut=c.opex+c.mp;
+  $('trk-cost-v').textContent=f$(totalOut);
+  // Monthly income
+  const income=c.gi;
+  $('trk-inc-v').textContent=f$(income);
+  $('trk-inc').className='tracker-tile'+(income>0?' pos':'');
+  // Net CF
+  $('trk-cf-v').textContent=f$(c.mcf);
+  $('trk-cf').className='tracker-tile'+(c.mcf>0?'pos':c.mcf<0?' neg':'');
+
+  // Progress bar (cash to close vs a benchmark of purchase price)
+  const bw=$('trk-bar-wrap');
+  if(c.pp>0&&c.ti>0){
+    bw.style.display='block';
+    const pct=Math.min(100,Math.round((c.ti/c.pp)*100));
+    $('trk-bar-fill').style.width=pct+'%';
+    $('trk-bar-pct').textContent=pct+'% of purchase price';
+  }else{bw.style.display='none';}
+
+  // Goal badges
+  const g=_profile.goals||{};
+  const badges=[];
+  if(c.rent>0||c.pp>0){
+    const cocGoal=g.coc||8,capGoal=g.cap||6,cfGoal=g.minCF||200;
+    if(c.coc!==0||c.mcf!==0){
+      const cocMet=c.coc>=cocGoal;
+      badges.push(`<span class="tgb ${c.pp>0&&c.rent>0?(cocMet?'met':'unmet'):'na'}">${cocMet?'✓':'✗'} CoC ≥ ${cocGoal}%</span>`);
+    }
+    if(c.cr!==0||c.pp>0){
+      const capMet=c.cr>=capGoal;
+      badges.push(`<span class="tgb ${c.pp>0&&c.rent>0?(capMet?'met':'unmet'):'na'}">${capMet?'✓':'✗'} Cap ≥ ${capGoal}%</span>`);
+    }
+    if(c.mcf!==0||c.rent>0){
+      const cfMet=c.mcf>=cfGoal;
+      badges.push(`<span class="tgb ${c.pp>0&&c.rent>0?(cfMet?'met':'unmet'):'na'}">${cfMet?'✓':'✗'} CF ≥ ${f$(cfGoal)}/mo</span>`);
+    }
+  }
+  $('trk-badges').innerHTML=badges.join('');
+}
+
+/* ── INLINE GOALS EDITOR ── */
+function toggleGoalsEdit(open){
+  $('goals-view').style.display=open?'none':'block';
+  $('goals-edit').style.display=open?'block':'none';
+  if(open){
+    const p=_profile;
+    $('ge-coc').value=p.goals?.coc||'';
+    $('ge-cap').value=p.goals?.cap||'';
+    $('ge-cf').value=p.goals?.minCF||'';
+    $('ge-vac').value=p.defaults?.vac||'';
+    $('ge-cc').value=p.defaults?.cc||'';
+    $('ge-dp').value=p.defaults?.dp||'';
+    $('ge-notes').value=p.notes||'';
+    $('goals-saved-msg').textContent='';
+  }
+}
+async function saveGoalsInline(){
+  const fb=window._fb,user=window._currentUser;if(!fb||!user)return;
+  const updated={..._profile,
+    updatedAt:new Date().toISOString(),
+    goals:{coc:parseFloat($('ge-coc').value)||8,cap:parseFloat($('ge-cap').value)||6,minCF:parseFloat($('ge-cf').value)||200},
+    defaults:{vac:parseFloat($('ge-vac').value)||5,cc:parseFloat($('ge-cc').value)||3,dp:parseFloat($('ge-dp').value)||20},
+    notes:$('ge-notes').value.trim()
+  };
+  try{
+    await fb.setDoc(fb.doc(fb.db,'users',user.uid,'profile','data'),updated);
+    _profile=updated;
+    toggleGoalsEdit(false);
+    renderProfileTab(user);
+    $('goals-saved-msg').textContent='✓ Saved';
+    setTimeout(()=>{if($('goals-saved-msg'))$('goals-saved-msg').textContent='';},2500);
+    toast('Goals updated','green');
+  }catch(e){toast('Error saving goals','red');}
+}
 function toggleDP(){dpMode=dpMode==='pct'?'dollar':'pct';updateDPUI();calc();}
 function updateDPUI(){const w=$('dp-wrap'),btn=w.nextElementSibling;if(dpMode==='dollar'){w.innerHTML='<span class="px l">$</span><input type="number" id="dp-v" placeholder="0" inputmode="decimal" oninput="calc()">';if(btn)btn.textContent='Switch to % amount';}else{w.innerHTML='<input type="number" id="dp-v" placeholder="20" value="20" inputmode="decimal" oninput="calc()"><span class="px r">%</span>';if(btn)btn.textContent='Switch to $ amount';}}
 function clearForm(){['sc-name','addr','pp','arv','rehab','ir','lt','rent','oth-inc','vac','ptax','ins','hoa','pmg','maint','capex','elec','watr','gas','trash','inet','lawn','pest','snow','adv','oth-exp'].forEach(id=>{const el=$(id);if(el)el.value='';});$('dp-v').value=_profile.defaults?.dp||'20';$('cc').value=_profile.defaults?.cc||'3';$('ir').value='7.5';$('lt').value='30';$('vac').value=_profile.defaults?.vac||'5';dpMode='pct';updateDPUI();calc();}
@@ -1078,6 +1340,7 @@ function exportOnePDF(id){const s=_deals.find(x=>x.id===id);if(s)genDealPDF(s.na
 function exportCmpPDF(){const ids=[...document.querySelectorAll('#cmp-chips input:checked')].map(i=>i.value);if(ids.length<2){alert('Select 2+ scenarios first.');return;}const sel=ids.map(id=>_deals.find(s=>s.id===id)).filter(Boolean);const calcs=sel.map(s=>({...compute(s.data),name:s.name}));const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape'});let y=20;doc.setFontSize(16);doc.setFont(undefined,'bold');doc.setTextColor(12,30,60);doc.text('Deal Comparison',15,y);y+=8;doc.setFont(undefined,'normal');doc.setFontSize(8);doc.setTextColor(160);doc.text('Generated '+new Date().toLocaleDateString(),15,y);y+=10;doc.setTextColor(0);const heads=['Metric',...calcs.map(c=>c.name.length>20?c.name.slice(0,18)+'…':c.name)];const body=[['Purchase Price',...calcs.map(c=>f$(c.pp))],['Total Investment',...calcs.map(c=>f$(c.ti))],['Monthly Mortgage',...calcs.map(c=>f$d(c.mp))],['Gross Rent /mo',...calcs.map(c=>f$(c.rent))],['Op. Expenses /mo',...calcs.map(c=>f$(c.opex))],['Monthly CF',...calcs.map(c=>f$(c.mcf))],['Annual CF',...calcs.map(c=>f$(c.acf))],['CoC Return',...calcs.map(c=>fp(c.coc))],['Cap Rate',...calcs.map(c=>fp(c.cr))],['NOI /yr',...calcs.map(c=>f$(c.noi))],['GRM',...calcs.map(c=>c.grm>0?c.grm.toFixed(1)+'x':'—')]];doc.autoTable({head:[heads],body,startY:y,margin:{left:15},styles:{fontSize:9,cellPadding:4},headStyles:{fillColor:[29,78,216],textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[239,246,255]},columnStyles:{0:{fontStyle:'bold',cellWidth:55}}});doc.save('deal-comparison.pdf');}
 function exportAllPDF(){if(!_deals.length){alert('No saved scenarios.');return;}if(_deals.length===1){exportOnePDF(_deals[0].id);return;}const calcs=_deals.map(s=>({...compute(s.data),name:s.name}));const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape'});let y=20;doc.setFontSize(16);doc.setFont(undefined,'bold');doc.setTextColor(12,30,60);doc.text('All Saved Deals',15,y);y+=8;doc.setFont(undefined,'normal');doc.setFontSize(8);doc.setTextColor(160);doc.text('Generated '+new Date().toLocaleDateString(),15,y);y+=10;doc.setTextColor(0);const heads=['Metric',...calcs.map(c=>c.name.length>16?c.name.slice(0,14)+'…':c.name)];const body=[['Purchase Price',...calcs.map(c=>f$(c.pp))],['Total Investment',...calcs.map(c=>f$(c.ti))],['Monthly Mortgage',...calcs.map(c=>f$d(c.mp))],['Gross Rent /mo',...calcs.map(c=>f$(c.rent))],['Op. Expenses /mo',...calcs.map(c=>f$(c.opex))],['Monthly CF',...calcs.map(c=>f$(c.mcf))],['Annual CF',...calcs.map(c=>f$(c.acf))],['CoC Return',...calcs.map(c=>fp(c.coc))],['Cap Rate',...calcs.map(c=>fp(c.cr))],['NOI /yr',...calcs.map(c=>f$(c.noi))]];doc.autoTable({head:[heads],body,startY:y,margin:{left:15},styles:{fontSize:9,cellPadding:4},headStyles:{fillColor:[29,78,216],textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[239,246,255]},columnStyles:{0:{fontStyle:'bold',cellWidth:55}}});doc.save('all-deals.pdf');}
 calc();
+updateTracker({mcf:0,ti:0,gi:0,opex:0,mp:0,pp:0,rent:0,coc:0,cr:0});
 </script>
 </body>
 </html>
