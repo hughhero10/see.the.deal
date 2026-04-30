@@ -600,6 +600,65 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
 @media (max-height:500px) and (orientation:landscape) {
   .metrics-grid { grid-template-columns:repeat(4,1fr); }
 }
+@media (max-width:360px) {
+  .tab-btn { font-size:10px; padding:6px 2px; }
+}
+
+/* ── ADDRESS AUTOCOMPLETE ── */
+.ac-wrap { position: relative; }
+.ac-dropdown {
+  position: absolute; top: calc(100% + 3px); left: 0; right: 0; z-index: 400;
+  background: white; border: 1.5px solid var(--blue-200);
+  border-radius: var(--r-md); box-shadow: 0 8px 28px rgba(30,60,120,.18);
+  overflow: hidden; display: none; max-height: 260px; overflow-y: auto;
+}
+.ac-dropdown.open { display: block; }
+.ac-item {
+  padding: 10px 12px; cursor: pointer;
+  border-bottom: 1px solid rgba(59,130,246,.07);
+  transition: background var(--tr);
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.ac-item:last-child { border-bottom: none; }
+.ac-item:hover, .ac-item.focused { background: var(--blue-50); }
+.ac-icon { font-size: 14px; flex-shrink: 0; padding-top: 2px; }
+.ac-main { font-size: 13px; font-weight: 600; color: var(--txt); line-height: 1.3; }
+.ac-sub { font-size: 11px; color: var(--txt3); margin-top: 2px; line-height: 1.3; }
+.ac-msg { padding: 12px 14px; font-size: 12px; color: var(--txt3); text-align: center; }
+
+/* ── AUTO DEAL TAB ── */
+.qa-search-bar { display: flex; gap: 10px; align-items: flex-start; }
+.qa-search-field { flex: 1; min-width: 0; }
+.data-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 8px 0; border-bottom: 1px solid var(--border); gap: 12px;
+}
+.data-row:last-child { border-bottom: none; }
+.data-row .dl { font-size: 12px; color: var(--txt2); flex-shrink: 0; padding-top: 1px; }
+.data-row .dv { font-size: 13px; font-weight: 600; color: var(--txt); text-align: right; }
+.data-source { font-size: 10px; color: var(--txt3); text-align: center; padding: 10px 0 2px; }
+.conf-badge {
+  display: inline-block; padding: 1px 7px; border-radius: 50px;
+  font-size: 10px; font-weight: 600; margin-top: 2px;
+}
+.conf-high { background: var(--green-bg); color: var(--green); }
+.conf-med { background: #FEF3C7; color: #92400E; }
+.conf-low { background: var(--blue-50); color: var(--txt3); }
+.qa-adj-note { font-size: 11px; color: var(--txt3); margin-top: 3px; font-style: italic; line-height: 1.4; }
+.qa-result-card { animation: fadeUp .3s ease; }
+
+/* ── BEDROOM SELECTOR ── */
+.br-selector { display: flex; gap: 6px; flex-wrap: wrap; }
+.br-btn {
+  padding: 7px 14px; border-radius: 50px; border: 1.5px solid var(--border-s);
+  background: white; color: var(--txt2); font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: all var(--tr);
+}
+.br-btn.active {
+  background: linear-gradient(135deg,#3B82F6,#1D4ED8); color: white;
+  border-color: transparent; box-shadow: 0 3px 10px rgba(37,99,235,.32);
+}
+.br-btn:not(.active):hover { border-color: var(--blue-400); color: var(--accent); }
 </style>
 </head>
 <body>
@@ -749,6 +808,7 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
     <button class="tab-btn" onclick="showTab('c')">Compare <span class="badge badge-hidden" id="cb">0</span></button>
     <button class="tab-btn" onclick="showTab('s')">Saved <span class="badge badge-hidden" id="sb">0</span></button>
     <button class="tab-btn" onclick="showTab('p')">Profile</button>
+    <button class="tab-btn" onclick="showTab('q')">Auto</button>
   </div>
 
   <!-- ── ANALYZER ── -->
@@ -808,7 +868,13 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
       <div class="card-title">Scenario Details</div>
       <div class="g2">
         <div class="field"><label>Scenario Name</label><div class="iw"><input type="text" id="sc-name" placeholder="e.g. Oak Street Duplex" oninput="calc()" autocomplete="off"></div></div>
-        <div class="field"><label>Property Address <span class="opt">(opt)</span></label><div class="iw"><input type="text" id="addr" placeholder="123 Main St, City" oninput="calc()" autocomplete="off"></div></div>
+        <div class="field">
+          <label>Property Address <span class="opt">(opt)</span></label>
+          <div class="ac-wrap">
+            <div class="iw"><input type="text" id="addr" placeholder="123 Main St, City" oninput="acInput(this,'ac-addr');calc()" onkeydown="acKeydown(event,'ac-addr')" autocomplete="off"></div>
+            <div class="ac-dropdown" id="ac-addr"></div>
+          </div>
+        </div>
       </div>
       <div class="g2" style="margin-top:12px">
         <div class="field"><label>Purchase Price</label><div class="iw"><span class="px l">$</span><input type="number" id="pp" placeholder="0" inputmode="decimal" oninput="calc()"></div></div>
@@ -1060,6 +1126,104 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
     </div>
   </div>
 
+  <!-- ── AUTO DEAL ── -->
+  <div id="tab-q" style="display:none">
+
+    <div class="card">
+      <div class="card-title">Auto Deal Generator</div>
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:16px">Type any US property address to automatically pull available data and pre-fill a deal analysis. Data comes from OpenStreetMap and the US Census Bureau — free, no sign-up required.</p>
+      <div class="qa-search-bar">
+        <div class="qa-search-field ac-wrap">
+          <div class="iw" style="min-height:46px">
+            <span class="px l" style="font-size:16px">📍</span>
+            <input type="text" id="qa-input" placeholder="123 Main St, Miami, FL..."
+                   oninput="acInput(this,'ac-qa')"
+                   onkeydown="if(event.key==='Enter'){quickAnalyze()}else{acKeydown(event,'ac-qa')}"
+                   autocomplete="off" style="font-size:14px">
+          </div>
+          <div class="ac-dropdown" id="ac-qa"></div>
+        </div>
+        <button class="btn btn-p" onclick="quickAnalyze()" style="flex-shrink:0;height:46px;border-radius:var(--r-sm)">
+          Analyze
+        </button>
+      </div>
+
+      <!-- Bedroom selector -->
+      <div style="margin-top:14px">
+        <div style="font-size:11px;font-weight:600;color:var(--txt2);margin-bottom:8px">Bedrooms — used to estimate rent for this property type</div>
+        <div class="br-selector" id="br-selector">
+          <button class="br-btn" onclick="selectBR(0)">Studio</button>
+          <button class="br-btn active" onclick="selectBR(1)">1 BR</button>
+          <button class="br-btn" onclick="selectBR(2)">2 BR</button>
+          <button class="br-btn" onclick="selectBR(3)">3 BR</button>
+          <button class="br-btn" onclick="selectBR(4)">4 BR+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="qa-loading" style="display:none;text-align:center;padding:36px 20px">
+      <div class="spinner" style="margin:0 auto 14px"></div>
+      <p id="qa-loading-msg" style="font-size:13px;color:var(--txt2)">Fetching property data...</p>
+    </div>
+
+    <!-- Error -->
+    <div id="qa-error" class="card" style="display:none;background:var(--red-bg);border-color:rgba(220,38,38,.2)">
+      <p id="qa-error-msg" style="font-size:13px;color:var(--red);font-weight:500"></p>
+    </div>
+
+    <!-- Results -->
+    <div id="qa-results" style="display:none">
+
+      <!-- Property info card -->
+      <div class="card qa-result-card">
+        <div class="card-title">📍 Property Details</div>
+        <div id="qa-prop-rows"></div>
+      </div>
+
+      <!-- Census/area data card -->
+      <div class="card qa-result-card" id="qa-census-card" style="display:none">
+        <div class="card-title">📊 Area Market Data</div>
+        <p style="font-size:11px;color:var(--txt3);margin-bottom:12px">
+          Area medians for ZIP <strong id="qa-zip-lbl">—</strong> from the US Census Bureau (ACS 5-Year Estimates). These reflect the broader area — not the specific property.
+        </p>
+        <div id="qa-census-rows"></div>
+        <div class="data-source">US Census Bureau · American Community Survey 2022</div>
+      </div>
+
+      <!-- Pre-fill card -->
+      <div class="card qa-result-card">
+        <div class="card-title">💡 Pre-fill Analyzer</div>
+        <p style="font-size:13px;color:var(--txt2);margin-bottom:16px">Review and adjust these estimates before loading. All other fields will use your profile defaults.</p>
+        <div class="g2" style="margin-bottom:16px">
+          <div class="field">
+            <label>Estimated Monthly Rent</label>
+            <div class="iw"><span class="px l">$</span><input type="number" id="qa-rent-val" placeholder="0" inputmode="decimal"></div>
+            <div class="qa-adj-note" id="qa-rent-note"></div>
+          </div>
+          <div class="field">
+            <label>ARV / Market Value Ref.</label>
+            <div class="iw"><span class="px l">$</span><input type="number" id="qa-arv-val" placeholder="0" inputmode="decimal"></div>
+            <div class="qa-adj-note" id="qa-arv-note"></div>
+          </div>
+        </div>
+        <button class="btn btn-p" onclick="loadIntoAnalyzer()" style="width:100%;justify-content:center;border-radius:var(--r-sm)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><path d="M21 3L9 15M10 3H3v18h18v-7"/></svg>
+          Load into Analyzer
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Empty state -->
+    <div id="qa-empty" class="empty-state">
+      <div class="ei">🏘️</div>
+      <h3>Search any US property</h3>
+      <p>Enter an address above to automatically pull available data and pre-fill a deal analysis</p>
+    </div>
+
+  </div>
+
   <div class="footer">Estimates for informational purposes only.<br>Consult a financial advisor before making investment decisions.</div>
 </div>
 </div>
@@ -1228,10 +1392,310 @@ function openModal(id){$(id).classList.add('open');}
 function closeModal(id){$(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 
+/* ═══════════════════════════════════════════════
+   ADDRESS AUTOCOMPLETE  (Nominatim / OpenStreetMap)
+═══════════════════════════════════════════════ */
+const _acStore = {};   // results keyed by dropdownId
+const _acFocus = {};   // focused index keyed by dropdownId
+let   _acTimer  = null;
+
+function acInput(inputEl, ddId) {
+  const q  = inputEl.value.trim();
+  const dd = $(ddId);
+  if (!dd) return;
+  clearTimeout(_acTimer);
+  if (q.length < 5) { dd.classList.remove('open'); return; }
+  dd.innerHTML = '<div class="ac-msg">Searching…</div>';
+  dd.classList.add('open');
+  _acFocus[ddId] = -1;
+  _acTimer = setTimeout(() => _acFetch(q, ddId, inputEl.id), 500);
+}
+
+async function _acFetch(q, ddId, inputId) {
+  const dd = $(ddId);
+  if (!dd) return;
+  try {
+    const r   = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=us&format=json&addressdetails=1&extratags=1&limit=6`);
+    const arr = await r.json();
+    _acStore[ddId] = arr;
+    if (!arr.length) { dd.innerHTML = '<div class="ac-msg">No results — try adding a city or state</div>'; return; }
+    dd.innerHTML = arr.map((item, i) => {
+      const a    = item.address || {};
+      const main = [a.house_number, a.road].filter(Boolean).join(' ') || item.display_name.split(',')[0];
+      const city = a.city || a.town || a.village || a.hamlet || '';
+      const sub  = [city, a.state, a.postcode].filter(Boolean).join(', ');
+      const icon = item.type === 'house' ? '🏠'
+                 : item.type === 'apartments' ? '🏘️'
+                 : item.class === 'building' ? '🏢'
+                 : item.class === 'landuse' ? '🏡' : '📍';
+      return `<div class="ac-item" data-i="${i}" onclick="acPick(event,'${ddId}','${inputId}')">
+        <span class="ac-icon">${icon}</span>
+        <div><div class="ac-main">${main}</div><div class="ac-sub">${sub}</div></div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    dd.innerHTML = '<div class="ac-msg">Search unavailable</div>';
+  }
+}
+
+function acKeydown(evt, ddId) {
+  const dd = $(ddId);
+  if (!dd || !dd.classList.contains('open')) return;
+  const items = [...dd.querySelectorAll('.ac-item')];
+  let   idx   = _acFocus[ddId] ?? -1;
+  if (evt.key === 'ArrowDown') {
+    evt.preventDefault();
+    items[idx]?.classList.remove('focused');
+    idx = Math.min(idx + 1, items.length - 1);
+    items[idx]?.classList.add('focused');
+    items[idx]?.scrollIntoView({ block:'nearest' });
+    _acFocus[ddId] = idx;
+  } else if (evt.key === 'ArrowUp') {
+    evt.preventDefault();
+    items[idx]?.classList.remove('focused');
+    idx = Math.max(idx - 1, 0);
+    items[idx]?.classList.add('focused');
+    items[idx]?.scrollIntoView({ block:'nearest' });
+    _acFocus[ddId] = idx;
+  } else if (evt.key === 'Enter') {
+    const f = dd.querySelector('.ac-item.focused');
+    if (f) { evt.preventDefault(); f.click(); }
+    else dd.classList.remove('open');
+  } else if (evt.key === 'Escape') {
+    dd.classList.remove('open');
+  }
+}
+
+function acPick(evt, ddId, inputId) {
+  const i    = parseInt(evt.currentTarget.dataset.i);
+  const arr  = _acStore[ddId];
+  if (!arr || !arr[i]) return;
+  const item = arr[i];
+  const a    = item.address || {};
+  const full = [a.house_number, a.road, a.city || a.town || a.village, a.state, a.postcode]
+                 .filter(Boolean).join(', ');
+  const el = $(inputId);
+  if (el) { el.value = full; if (inputId === 'addr') calc(); }
+  $(ddId).classList.remove('open');
+  if (ddId === 'ac-qa') window._qaSelected = item;
+}
+
+// Close all dropdowns on outside click
+document.addEventListener('click', e => {
+  document.querySelectorAll('.ac-dropdown.open').forEach(dd => {
+    if (!dd.closest('.ac-wrap')?.contains(e.target)) dd.classList.remove('open');
+  });
+});
+
+/* ═══════════════════════════════════════════════
+   AUTO DEAL GENERATOR
+═══════════════════════════════════════════════ */
+window._qaSelected = null;
+window._qaGeo      = null;
+window._qaCensus   = null;
+
+async function quickAnalyze() {
+  const addr = $('qa-input')?.value?.trim();
+  if (!addr) { toast('Enter a property address first', 'red'); return; }
+
+  $('qa-empty').style.display    = 'none';
+  $('qa-results').style.display  = 'none';
+  $('qa-error').style.display    = 'none';
+  $('qa-loading').style.display  = 'block';
+  $('qa-loading-msg').textContent = 'Geocoding address…';
+
+  try {
+    // ── Step 1: Geocode via Nominatim ──
+    let geo = window._qaSelected;
+    // Re-geocode if the typed text no longer matches the selection
+    const selRoad = geo?.address?.road || '';
+    if (!geo || (selRoad && !addr.toLowerCase().includes(selRoad.toLowerCase()))) {
+      const r    = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&countrycodes=us&format=json&addressdetails=1&extratags=1&limit=1`);
+      const data = await r.json();
+      if (!data.length) throw new Error('addr_not_found');
+      geo = data[0];
+    }
+    window._qaGeo = geo;
+
+    // ── Step 2: Census ACS data by ZIP ──
+    $('qa-loading-msg').textContent = 'Fetching area market data…';
+    const zip = (geo.address?.postcode || '').split('-')[0];
+    let census = null;
+    if (zip && /^\d{5}$/.test(zip)) census = await _fetchCensus(zip);
+    window._qaCensus = census;
+
+    // ── Step 3: Render ──
+    $('qa-loading').style.display = 'none';
+    _renderQuickResult(geo, census);
+
+  } catch(e) {
+    $('qa-loading').style.display = 'none';
+    $('qa-error').style.display   = 'block';
+    $('qa-error-msg').textContent  = e.message === 'addr_not_found'
+      ? '🔍 Address not found. Try adding a city or state (e.g. "123 Oak St, Miami FL").'
+      : '⚠️ Could not load data. Check your connection and try again.';
+  }
+}
+
+async function _fetchCensus(zip) {
+  // B25077: Median home value | B25064: Median gross rent (all units) | B19013: Median HH income
+  // B01003: Total population  | B25003: Tenure | B25024: Units in structure
+  // B25031: Median gross rent BY BEDROOMS — _002E=studio _003E=1BR _004E=2BR _005E=3BR _006E=4BR
+  const vars = 'B25077_001E,B25064_001E,B19013_001E,B01003_001E,B25003_001E,B25003_002E,B25024_002E,B25031_002E,B25031_003E,B25031_004E,B25031_005E,B25031_006E';
+  const url  = `https://api.census.gov/data/2022/acs/acs5?get=NAME,${vars}&for=zip%20code%20tabulation%20area:${zip}`;
+  try {
+    const res  = await fetch(url);
+    const data = await res.json();
+    if (!data || data.length < 2) return null;
+    const hdrs = data[0], row = data[1];
+    const get  = key => { const v = parseInt(row[hdrs.indexOf(key)]); return v > 0 ? v : null; };
+    return {
+      zip,
+      medianHomeValue:  get('B25077_001E'),
+      medianRent:       get('B25064_001E'),
+      medianIncome:     get('B19013_001E'),
+      totalPop:         get('B01003_001E'),
+      totalHousing:     get('B25003_001E'),
+      ownerOccupied:    get('B25003_002E'),
+      singleFamily:     get('B25024_002E'),
+      rentStudio:       get('B25031_002E'),
+      rent1BR:          get('B25031_003E'),
+      rent2BR:          get('B25031_004E'),
+      rent3BR:          get('B25031_005E'),
+      rent4BR:          get('B25031_006E'),
+    };
+  } catch(e) { return null; }
+}
+
+/* bedroom selector */
+let _selectedBR = 1;
+function selectBR(n) {
+  _selectedBR = n;
+  document.querySelectorAll('.br-btn').forEach((b,i) => b.classList.toggle('active', i === n));
+  // Re-apply bedroom-specific rent if census data already loaded
+  const c = window._qaCensus;
+  if (!c) return;
+  const rentByBR = [c.rentStudio, c.rent1BR, c.rent2BR, c.rent3BR, c.rent4BR];
+  const labels   = ['Studio', '1 BR', '2 BR', '3 BR', '4 BR+'];
+  const val = rentByBR[n];
+  const rentEl = $('qa-rent-val');
+  if (rentEl && val) { rentEl.value = val; }
+  const note = $('qa-rent-note');
+  if (note) note.textContent = val
+    ? `${labels[n]} median rent for ZIP ${c.zip} (Census ACS 2022) — adjust for condition`
+    : `No ${labels[n]} data for ZIP ${c.zip} — try a nearby ZIP or enter manually`;
+}
+
+function _renderQuickResult(geo, census) {
+  const a   = geo.address   || {};
+  const ext = geo.extratags || {};
+
+  // ── Property rows ──
+  const street   = [a.house_number, a.road].filter(Boolean).join(' ');
+  const cityLine = [a.city || a.town || a.village || '', a.state].filter(Boolean).join(', ');
+  const rows     = [];
+  rows.push({ l:'Address',   v: street || geo.display_name.split(',')[0], conf:'high' });
+  rows.push({ l:'City / State', v: cityLine || '—', conf:'high' });
+  rows.push({ l:'ZIP Code',  v: a.postcode || '—', conf: a.postcode?'high':'low' });
+
+  const rawType = ext.building || ext['building:use'] || geo.type || '';
+  const dispType = rawType ? rawType.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : '';
+  rows.push({ l:'Property Type', v: dispType || '—', conf: dispType?'high':'low' });
+
+  if (ext.bedrooms)  rows.push({ l:'Bedrooms',  v: ext.bedrooms,  conf:'high' });
+  if (ext.toilets || ext.bathrooms) rows.push({ l:'Bathrooms', v: ext.toilets||ext.bathrooms, conf:'high' });
+  if (ext['start_date']||ext.year_built) rows.push({ l:'Year Built', v: ext['start_date']||ext.year_built, conf:'high' });
+  if (ext['building:levels']) rows.push({ l:'Stories', v: ext['building:levels'], conf:'med' });
+  if (ext['addr:unit']) rows.push({ l:'Unit', v: ext['addr:unit'], conf:'high' });
+
+  const confLabel = { high:'', med:'Estimated', low:'Limited data' };
+  const confClass = { high:'', med:'conf-med',  low:'conf-low' };
+  $('qa-prop-rows').innerHTML = rows.map(r => `
+    <div class="data-row">
+      <span class="dl">${r.l}</span>
+      <div style="text-align:right">
+        <div class="dv">${r.v}</div>
+        ${r.conf !== 'high' ? `<span class="conf-badge ${confClass[r.conf]}">${confLabel[r.conf]}</span>` : ''}
+      </div>
+    </div>`).join('');
+
+  // ── Census rows ──
+  if (census) {
+    $('qa-zip-lbl').textContent = census.zip;
+    const cRows = [];
+    if (census.medianHomeValue) cRows.push({ l:'Median Home Value',       v: f$(census.medianHomeValue) });
+    if (census.medianRent)      cRows.push({ l:'Median Gross Rent /mo',   v: f$(census.medianRent) });
+    if (census.medianIncome)    cRows.push({ l:'Median Household Income', v: f$(census.medianIncome)+'/yr' });
+    if (census.ownerOccupied && census.totalHousing) {
+      const pct = Math.round((census.ownerOccupied/census.totalHousing)*100);
+      cRows.push({ l:'Owner-Occupied Rate', v: pct+'%' });
+    }
+    if (census.singleFamily && census.totalHousing) {
+      const pct = Math.round((census.singleFamily/census.totalHousing)*100);
+      cRows.push({ l:'Single-Family Rate', v: pct+'%' });
+    }
+    if (census.totalPop) cRows.push({ l:'Area Population', v: census.totalPop.toLocaleString() });
+    $('qa-census-rows').innerHTML = cRows.map(r =>
+      `<div class="data-row"><span class="dl">${r.l}</span><span class="dv">${r.v}</span></div>`
+    ).join('');
+    $('qa-census-card').style.display = cRows.length ? 'block' : 'none';
+  } else {
+    $('qa-census-card').style.display = 'none';
+  }
+
+  // ── Pre-fill inputs ──
+  const rentEl = $('qa-rent-val'), arvEl = $('qa-arv-val');
+  if (census) {
+    const rentByBR = [census.rentStudio, census.rent1BR, census.rent2BR, census.rent3BR, census.rent4BR];
+    const labels   = ['Studio', '1 BR', '2 BR', '3 BR', '4 BR+'];
+    const brRent   = rentByBR[_selectedBR];
+    const fallback = census.medianRent;
+    const finalRent = brRent || fallback;
+    if (rentEl) rentEl.value = finalRent || '';
+    if (arvEl)  arvEl.value  = census.medianHomeValue || '';
+    $('qa-rent-note').textContent = brRent
+      ? `${labels[_selectedBR]} median rent for ZIP ${census.zip} (Census ACS 2022) — adjust for condition`
+      : fallback
+        ? `No ${labels[_selectedBR]}-specific data — using area median rent for ZIP ${census.zip}`
+        : 'No Census data for this ZIP — enter manually';
+    $('qa-arv-note').textContent = census.medianHomeValue
+      ? `Area median home value for ZIP ${census.zip} — adjust for this specific property`
+      : 'No Census data for this ZIP — enter manually';
+  } else {
+    if (rentEl) rentEl.value = '';
+    if (arvEl)  arvEl.value  = '';
+    $('qa-rent-note').textContent = 'No Census data available — enter manually';
+    $('qa-arv-note').textContent  = 'No Census data available — enter manually';
+  }
+  $('qa-results').style.display = 'block';
+}
+
+function loadIntoAnalyzer() {
+  const geo = window._qaGeo;
+  if (!geo) { toast('No property loaded yet', 'red'); return; }
+  const a    = geo.address || {};
+  const full = [a.house_number, a.road, a.city || a.town || a.village, a.state, a.postcode]
+                 .filter(Boolean).join(', ');
+  const name = [a.house_number, a.road].filter(Boolean).join(' ') || full.split(',')[0];
+
+  const setV = (id, v) => { const el=$(id); if(el && v !== undefined && v !== '') el.value = v; };
+  setV('sc-name', name);
+  setV('addr',    full);
+  const rent = parseFloat($('qa-rent-val')?.value) || 0;
+  const arv  = parseFloat($('qa-arv-val')?.value)  || 0;
+  if (rent) setV('rent', rent);
+  if (arv)  setV('arv',  arv);
+
+  applyProfileDefaults();
+  calc();
+  showTab('a');
+  toast('Deal loaded into Analyzer ✓', 'green');
+}
+
 /* ── TABS ── */
 function showTab(t){
-  ['a','c','s','p'].forEach(x=>$('tab-'+x).style.display=x===t?'block':'none');
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',['a','c','s','p'][i]===t));
+  ['a','c','s','p','q'].forEach(x=>$('tab-'+x).style.display=x===t?'block':'none');
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',['a','c','s','p','q'][i]===t));
   if(t==='s')renderSaved();if(t==='c')renderChips();if(t==='p')renderProfileTab(window._currentUser);closeUserMenu();
 }
 
