@@ -77,7 +77,7 @@ onAuthStateChanged(auth, user => {
 :root {
   --blue-50:#EFF6FF; --blue-100:#DBEAFE; --blue-200:#BFDBFE;
   --blue-400:#60A5FA; --blue-500:#3B82F6; --blue-600:#2563EB; --blue-700:#1D4ED8;
-  --bg:#F0F6FF; --surface:rgba(255,255,255,0.88);
+  --bg:#F0F6FF; --surface:rgba(255,255,255,0.88); --surface-solid:#FFFFFF;
   --border:rgba(59,130,246,0.15); --border-s:rgba(59,130,246,0.28);
   --txt:#0C1E3C; --txt2:#4A6080; --txt3:#8BA0BA; --accent:#1D52C4;
   --green:#059669; --green-bg:#ECFDF5; --red:#DC2626; --red-bg:#FEF2F2;
@@ -86,6 +86,64 @@ onAuthStateChanged(auth, user => {
   --shadow-lg:0 8px 32px rgba(30,60,120,.13),0 2px 8px rgba(30,60,120,.07);
   --tr:0.18s cubic-bezier(0.4,0,0.2,1);
 }
+/* ── DARK MODE ── */
+[data-theme="dark"] {
+  --blue-50:#0F1E38; --blue-100:#162340; --blue-200:#1E3158;
+  --blue-400:#60A5FA; --blue-500:#3B82F6; --blue-600:#2563EB;
+  --bg:#0A1628; --surface:rgba(15,28,54,0.92); --surface-solid:#0F1C36;
+  --border:rgba(96,165,250,0.14); --border-s:rgba(96,165,250,0.26);
+  --txt:#E8F0FF; --txt2:#8BABD4; --txt3:#4E6A8C; --accent:#7FB3F8;
+  --green:#34D399; --green-bg:rgba(52,211,153,.12); --red:#F87171; --red-bg:rgba(248,113,113,.12);
+  --shadow:0 2px 14px rgba(0,0,0,.35),0 1px 4px rgba(0,0,0,.25);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.45),0 2px 10px rgba(0,0,0,.3);
+}
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse 90% 50% at 5% -5%,rgba(29,78,216,.22) 0%,transparent 55%),
+    radial-gradient(ellipse 70% 50% at 95% 105%,rgba(15,50,130,.18) 0%,transparent 55%);
+}
+[data-theme="dark"] .iw { background:#0F1C36; }
+[data-theme="dark"] .iw .px { background:#0A1628; }
+[data-theme="dark"] .static-val { background:#0A1628; }
+[data-theme="dark"] .invest-box,
+[data-theme="dark"] .totals-box { background:#0A1628; border-color:rgba(96,165,250,.14); }
+[data-theme="dark"] .auth-card,
+[data-theme="dark"] .modal { background:#0F1C36; }
+[data-theme="dark"] .auth-tabs { background:#0A1628; }
+[data-theme="dark"] .auth-iw { background:#0A1628; border-color:var(--border-s); }
+[data-theme="dark"] .auth-iw input { color:var(--txt); }
+[data-theme="dark"] .google-btn { background:#0A1628; color:var(--txt); border-color:var(--border-s); }
+[data-theme="dark"] .google-btn:hover { background:#162340; }
+[data-theme="dark"] .ud-header { background:#0A1628; }
+[data-theme="dark"] .user-dropdown { background:#0F1C36; }
+[data-theme="dark"] .ud-item:hover { background:#162340; }
+[data-theme="dark"] .ud-item.danger:hover { background:var(--red-bg); }
+[data-theme="dark"] .tab-bar { background:rgba(15,28,54,.85); }
+[data-theme="dark"] .saved-card { background:rgba(15,28,54,.92); }
+[data-theme="dark"] .goal-item { background:#0A1628; border-color:var(--border); }
+[data-theme="dark"] .action-bar { background:rgba(15,28,54,.92); }
+[data-theme="dark"] #ac-portal { background:#0F1C36; border-color:rgba(96,165,250,.28); }
+[data-theme="dark"] .ac-item:hover,
+[data-theme="dark"] .ac-item.focused { background:#162340; }
+[data-theme="dark"] .cmp-table thead th.rh,
+[data-theme="dark"] .cmp-table td.rh { background:#0A1628; }
+[data-theme="dark"] .cmp-table .dh { background:#0F1C36; }
+[data-theme="dark"] .cmp-table .sh td,
+[data-theme="dark"] .cmp-table .sh th { background:#0F1C36 !important; }
+[data-theme="dark"] .br-btn { background:#0A1628; color:var(--txt2); border-color:var(--border-s); }
+[data-theme="dark"] .chip { background:#0A1628; }
+[data-theme="dark"] .chip.on { background:#162340; }
+[data-theme="dark"] .auth-err { background:rgba(248,113,113,.1); }
+[data-theme="dark"] #loading-screen { background:var(--bg); }
+
+/* ── DARK MODE TOGGLE BUTTON ── */
+.theme-toggle {
+  width:36px; height:36px; border-radius:50%; border:1.5px solid var(--border-s);
+  background:var(--surface); cursor:pointer; display:flex; align-items:center;
+  justify-content:center; font-size:16px; flex-shrink:0;
+  transition:all var(--tr); box-shadow:var(--shadow);
+}
+.theme-toggle:hover { border-color:var(--blue-400); box-shadow:var(--shadow-lg); }
 html { font-size:16px; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
 body {
   font-family:'Figtree',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -604,15 +662,20 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
   .tab-btn { font-size:10px; padding:6px 2px; }
 }
 
-/* ── ADDRESS AUTOCOMPLETE ── */
+/* ── ADDRESS AUTOCOMPLETE — portal-based (appended to body, position:fixed) ── */
 .ac-wrap { position: relative; }
-.ac-dropdown {
-  position: absolute; top: calc(100% + 3px); left: 0; right: 0; z-index: 400;
-  background: white; border: 1.5px solid var(--blue-200);
-  border-radius: var(--r-md); box-shadow: 0 8px 28px rgba(30,60,120,.18);
-  overflow: hidden; display: none; max-height: 260px; overflow-y: auto;
+/* #ac-portal is appended to <body> so backdrop-filter stacking contexts can't clip it */
+#ac-portal {
+  position: fixed; z-index: 9999;
+  background: var(--surface-solid, white);
+  border: 1.5px solid var(--blue-200);
+  border-radius: var(--r-md);
+  box-shadow: 0 8px 28px rgba(30,60,120,.22);
+  overflow: hidden; display: none;
+  max-height: 260px; overflow-y: auto;
+  min-width: 220px;
 }
-.ac-dropdown.open { display: block; }
+#ac-portal.open { display: block; }
 .ac-item {
   padding: 10px 12px; cursor: pointer;
   border-bottom: 1px solid rgba(59,130,246,.07);
@@ -668,6 +731,9 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
   <div class="spinner"></div>
   <p style="font-size:13px;color:var(--txt3)">Loading See The Deal...</p>
 </div>
+
+<!-- AUTOCOMPLETE PORTAL — lives outside all cards to avoid stacking-context clipping -->
+<div id="ac-portal"></div>
 
 <!-- TOAST -->
 <div id="toast"></div>
@@ -778,7 +844,9 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
       </div>
       <span class="header-title">See The Deal</span>
     </div>
-    <div class="user-menu-wrap">
+    <div class="header-right" style="display:flex;align-items:center;gap:8px">
+      <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
+      <div class="user-menu-wrap">
       <div class="user-avatar" id="user-avatar-btn" onclick="toggleUserMenu()"></div>
       <div class="user-dropdown" id="user-dropdown">
         <div class="ud-header">
@@ -798,11 +866,9 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           Sign Out
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TABS -->
+      </div><!-- /user-menu-wrap -->
+    </div><!-- /header-right -->
+  </div><!-- /header-bar -->
   <div class="tab-bar">
     <button class="tab-btn active" onclick="showTab('a')">Analyzer</button>
     <button class="tab-btn" onclick="showTab('c')">Compare <span class="badge badge-hidden" id="cb">0</span></button>
@@ -871,8 +937,7 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
         <div class="field">
           <label>Property Address <span class="opt">(opt)</span></label>
           <div class="ac-wrap">
-            <div class="iw"><input type="text" id="addr" placeholder="123 Main St, City" oninput="acInput(this,'ac-addr');calc()" onkeydown="acKeydown(event,'ac-addr')" autocomplete="off"></div>
-            <div class="ac-dropdown" id="ac-addr"></div>
+            <div class="iw"><input type="text" id="addr" placeholder="123 Main St, City" oninput="acInput(this,'addr');calc()" onkeydown="acKeydown(event,'addr')" autocomplete="off"></div>
           </div>
         </div>
       </div>
@@ -1137,11 +1202,10 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
           <div class="iw" style="min-height:46px">
             <span class="px l" style="font-size:16px">📍</span>
             <input type="text" id="qa-input" placeholder="123 Main St, Miami, FL..."
-                   oninput="acInput(this,'ac-qa')"
-                   onkeydown="if(event.key==='Enter'){quickAnalyze()}else{acKeydown(event,'ac-qa')}"
+                   oninput="acInput(this,'qa-input')"
+                   onkeydown="if(event.key==='Enter'){quickAnalyze()}else{acKeydown(event,'qa-input')}"
                    autocomplete="off" style="font-size:14px">
           </div>
-          <div class="ac-dropdown" id="ac-qa"></div>
         </div>
         <button class="btn btn-p" onclick="quickAnalyze()" style="flex-shrink:0;height:46px;border-radius:var(--r-sm)">
           Analyze
@@ -1393,33 +1457,59 @@ function closeModal(id){$(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 
 /* ═══════════════════════════════════════════════
-   ADDRESS AUTOCOMPLETE  (Nominatim / OpenStreetMap)
+   ADDRESS AUTOCOMPLETE — portal-based
+   Single #ac-portal div appended to <body>;
+   positioned with getBoundingClientRect so no
+   stacking-context from backdrop-filter clips it.
 ═══════════════════════════════════════════════ */
-const _acStore = {};   // results keyed by dropdownId
-const _acFocus = {};   // focused index keyed by dropdownId
-let   _acTimer  = null;
+let _acActive  = null;   // currently active input id
+let _acResults = [];     // last fetched results
+let _acFocusIdx = -1;
+let _acTimer   = null;
 
-function acInput(inputEl, ddId) {
-  const q  = inputEl.value.trim();
-  const dd = $(ddId);
-  if (!dd) return;
-  clearTimeout(_acTimer);
-  if (q.length < 5) { dd.classList.remove('open'); return; }
-  dd.innerHTML = '<div class="ac-msg">Searching…</div>';
-  dd.classList.add('open');
-  _acFocus[ddId] = -1;
-  _acTimer = setTimeout(() => _acFetch(q, ddId, inputEl.id), 500);
+const _portal = () => document.getElementById('ac-portal');
+
+function _positionPortal(inputEl) {
+  const r   = inputEl.getBoundingClientRect();
+  const p   = _portal();
+  const spaceBelow = window.innerHeight - r.bottom;
+  const spaceAbove = r.top;
+  p.style.width = r.width + 'px';
+  p.style.left  = r.left + window.scrollX + 'px';
+  if (spaceBelow >= 200 || spaceBelow >= spaceAbove) {
+    // show below
+    p.style.top    = (r.bottom + window.scrollY + 3) + 'px';
+    p.style.bottom = 'auto';
+    p.style.maxHeight = Math.min(260, spaceBelow - 10) + 'px';
+  } else {
+    // flip above
+    p.style.bottom = (window.innerHeight - r.top + window.scrollY + 3) + 'px';
+    p.style.top    = 'auto';
+    p.style.maxHeight = Math.min(260, spaceAbove - 10) + 'px';
+  }
 }
 
-async function _acFetch(q, ddId, inputId) {
-  const dd = $(ddId);
-  if (!dd) return;
+function acInput(inputEl, inputId) {
+  const q = inputEl.value.trim();
+  const p = _portal();
+  _acActive = inputId;
+  clearTimeout(_acTimer);
+  if (q.length < 5) { p.classList.remove('open'); return; }
+  p.innerHTML = '<div class="ac-msg">Searching…</div>';
+  p.classList.add('open');
+  _positionPortal(inputEl);
+  _acFocusIdx = -1;
+  _acTimer = setTimeout(() => _acFetch(q, inputEl), 500);
+}
+
+async function _acFetch(q, inputEl) {
+  const p = _portal();
   try {
     const r   = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=us&format=json&addressdetails=1&extratags=1&limit=6`);
     const arr = await r.json();
-    _acStore[ddId] = arr;
-    if (!arr.length) { dd.innerHTML = '<div class="ac-msg">No results — try adding a city or state</div>'; return; }
-    dd.innerHTML = arr.map((item, i) => {
+    _acResults = arr;
+    if (!arr.length) { p.innerHTML = '<div class="ac-msg">No results — try adding a city or state</div>'; return; }
+    p.innerHTML = arr.map((item, i) => {
       const a    = item.address || {};
       const main = [a.house_number, a.road].filter(Boolean).join(' ') || item.display_name.split(',')[0];
       const city = a.city || a.town || a.village || a.hamlet || '';
@@ -1428,63 +1518,81 @@ async function _acFetch(q, ddId, inputId) {
                  : item.type === 'apartments' ? '🏘️'
                  : item.class === 'building' ? '🏢'
                  : item.class === 'landuse' ? '🏡' : '📍';
-      return `<div class="ac-item" data-i="${i}" onclick="acPick(event,'${ddId}','${inputId}')">
+      return `<div class="ac-item" data-i="${i}" data-src="${_acActive}" onclick="_acPick(${i})">
         <span class="ac-icon">${icon}</span>
         <div><div class="ac-main">${main}</div><div class="ac-sub">${sub}</div></div>
       </div>`;
     }).join('');
+    _positionPortal(inputEl);
   } catch(e) {
-    dd.innerHTML = '<div class="ac-msg">Search unavailable</div>';
+    p.innerHTML = '<div class="ac-msg">Search unavailable</div>';
   }
 }
 
-function acKeydown(evt, ddId) {
-  const dd = $(ddId);
-  if (!dd || !dd.classList.contains('open')) return;
-  const items = [...dd.querySelectorAll('.ac-item')];
-  let   idx   = _acFocus[ddId] ?? -1;
+function acKeydown(evt, inputId) {
+  const p = _portal();
+  if (!p.classList.contains('open')) return;
+  const items = [...p.querySelectorAll('.ac-item')];
+  let idx = _acFocusIdx;
   if (evt.key === 'ArrowDown') {
     evt.preventDefault();
     items[idx]?.classList.remove('focused');
     idx = Math.min(idx + 1, items.length - 1);
     items[idx]?.classList.add('focused');
     items[idx]?.scrollIntoView({ block:'nearest' });
-    _acFocus[ddId] = idx;
+    _acFocusIdx = idx;
   } else if (evt.key === 'ArrowUp') {
     evt.preventDefault();
     items[idx]?.classList.remove('focused');
     idx = Math.max(idx - 1, 0);
     items[idx]?.classList.add('focused');
     items[idx]?.scrollIntoView({ block:'nearest' });
-    _acFocus[ddId] = idx;
+    _acFocusIdx = idx;
   } else if (evt.key === 'Enter') {
-    const f = dd.querySelector('.ac-item.focused');
+    const f = p.querySelector('.ac-item.focused');
     if (f) { evt.preventDefault(); f.click(); }
-    else dd.classList.remove('open');
+    else p.classList.remove('open');
   } else if (evt.key === 'Escape') {
-    dd.classList.remove('open');
+    p.classList.remove('open');
   }
 }
 
-function acPick(evt, ddId, inputId) {
-  const i    = parseInt(evt.currentTarget.dataset.i);
-  const arr  = _acStore[ddId];
-  if (!arr || !arr[i]) return;
-  const item = arr[i];
+function _acPick(i) {
+  const item = _acResults[i];
+  if (!item) return;
   const a    = item.address || {};
   const full = [a.house_number, a.road, a.city || a.town || a.village, a.state, a.postcode]
                  .filter(Boolean).join(', ');
-  const el = $(inputId);
-  if (el) { el.value = full; if (inputId === 'addr') calc(); }
-  $(ddId).classList.remove('open');
-  if (ddId === 'ac-qa') window._qaSelected = item;
+  const src = _acActive;
+  const el  = $(src);
+  if (el) {
+    el.value = full;
+    if (src === 'addr') calc();
+    if (src === 'qa-input') window._qaSelected = item;
+  }
+  _portal().classList.remove('open');
+  _acActive = null;
 }
 
-// Close all dropdowns on outside click
+// Reposition portal on scroll/resize
+window.addEventListener('scroll', () => {
+  if (_acActive && _portal().classList.contains('open')) {
+    const el = $(_acActive); if (el) _positionPortal(el);
+  }
+}, { passive: true });
+window.addEventListener('resize', () => {
+  if (_acActive && _portal().classList.contains('open')) {
+    const el = $(_acActive); if (el) _positionPortal(el);
+  }
+});
+
+// Close portal on outside click
 document.addEventListener('click', e => {
-  document.querySelectorAll('.ac-dropdown.open').forEach(dd => {
-    if (!dd.closest('.ac-wrap')?.contains(e.target)) dd.classList.remove('open');
-  });
+  const p = _portal();
+  if (!p.contains(e.target) && !e.target.closest('.ac-wrap')) {
+    p.classList.remove('open');
+    _acActive = null;
+  }
 });
 
 /* ═══════════════════════════════════════════════
@@ -1507,9 +1615,10 @@ async function quickAnalyze() {
   try {
     // ── Step 1: Geocode via Nominatim ──
     let geo = window._qaSelected;
-    // Re-geocode if the typed text no longer matches the selection
+    // Re-geocode if user typed something different from selected suggestion
     const selRoad = geo?.address?.road || '';
-    if (!geo || (selRoad && !addr.toLowerCase().includes(selRoad.toLowerCase()))) {
+    const typedAddr = addr.toLowerCase();
+    if (!geo || (selRoad && !typedAddr.includes(selRoad.toLowerCase()))) {
       const r    = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&countrycodes=us&format=json&addressdetails=1&extratags=1&limit=1`);
       const data = await r.json();
       if (!data.length) throw new Error('addr_not_found');
@@ -1803,6 +1912,26 @@ function exportPDF(){const d=getForm(),c=compute(d);genDealPDF(d.name||d.address
 function exportOnePDF(id){const s=_deals.find(x=>x.id===id);if(s)genDealPDF(s.name,s.data,compute(s.data));}
 function exportCmpPDF(){const ids=[...document.querySelectorAll('#cmp-chips input:checked')].map(i=>i.value);if(ids.length<2){alert('Select 2+ scenarios first.');return;}const sel=ids.map(id=>_deals.find(s=>s.id===id)).filter(Boolean);const calcs=sel.map(s=>({...compute(s.data),name:s.name}));const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape'});let y=20;doc.setFontSize(16);doc.setFont(undefined,'bold');doc.setTextColor(12,30,60);doc.text('Deal Comparison',15,y);y+=8;doc.setFont(undefined,'normal');doc.setFontSize(8);doc.setTextColor(160);doc.text('Generated '+new Date().toLocaleDateString(),15,y);y+=10;doc.setTextColor(0);const heads=['Metric',...calcs.map(c=>c.name.length>20?c.name.slice(0,18)+'…':c.name)];const body=[['Purchase Price',...calcs.map(c=>f$(c.pp))],['Total Investment',...calcs.map(c=>f$(c.ti))],['Monthly Mortgage',...calcs.map(c=>f$d(c.mp))],['Gross Rent /mo',...calcs.map(c=>f$(c.rent))],['Op. Expenses /mo',...calcs.map(c=>f$(c.opex))],['Monthly CF',...calcs.map(c=>f$(c.mcf))],['Annual CF',...calcs.map(c=>f$(c.acf))],['CoC Return',...calcs.map(c=>fp(c.coc))],['Cap Rate',...calcs.map(c=>fp(c.cr))],['NOI /yr',...calcs.map(c=>f$(c.noi))],['GRM',...calcs.map(c=>c.grm>0?c.grm.toFixed(1)+'x':'—')]];doc.autoTable({head:[heads],body,startY:y,margin:{left:15},styles:{fontSize:9,cellPadding:4},headStyles:{fillColor:[29,78,216],textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[239,246,255]},columnStyles:{0:{fontStyle:'bold',cellWidth:55}}});doc.save('deal-comparison.pdf');}
 function exportAllPDF(){if(!_deals.length){alert('No saved scenarios.');return;}if(_deals.length===1){exportOnePDF(_deals[0].id);return;}const calcs=_deals.map(s=>({...compute(s.data),name:s.name}));const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape'});let y=20;doc.setFontSize(16);doc.setFont(undefined,'bold');doc.setTextColor(12,30,60);doc.text('All Saved Deals',15,y);y+=8;doc.setFont(undefined,'normal');doc.setFontSize(8);doc.setTextColor(160);doc.text('Generated '+new Date().toLocaleDateString(),15,y);y+=10;doc.setTextColor(0);const heads=['Metric',...calcs.map(c=>c.name.length>16?c.name.slice(0,14)+'…':c.name)];const body=[['Purchase Price',...calcs.map(c=>f$(c.pp))],['Total Investment',...calcs.map(c=>f$(c.ti))],['Monthly Mortgage',...calcs.map(c=>f$d(c.mp))],['Gross Rent /mo',...calcs.map(c=>f$(c.rent))],['Op. Expenses /mo',...calcs.map(c=>f$(c.opex))],['Monthly CF',...calcs.map(c=>f$(c.mcf))],['Annual CF',...calcs.map(c=>f$(c.acf))],['CoC Return',...calcs.map(c=>fp(c.coc))],['Cap Rate',...calcs.map(c=>fp(c.cr))],['NOI /yr',...calcs.map(c=>f$(c.noi))]];doc.autoTable({head:[heads],body,startY:y,margin:{left:15},styles:{fontSize:9,cellPadding:4},headStyles:{fillColor:[29,78,216],textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[239,246,255]},columnStyles:{0:{fontStyle:'bold',cellWidth:55}}});doc.save('all-deals.pdf');}
+/* ── DARK / LIGHT MODE ── */
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next   = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('std-theme', next);
+  const btn = $('theme-toggle-btn');
+  if (btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
+}
+// Apply saved preference on load
+(function(){
+  const saved = localStorage.getItem('std-theme') ||
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme','dark');
+    const btn = document.getElementById('theme-toggle-btn');
+    if (btn) btn.textContent = '☀️';
+  }
+})();
+
 calc();
 updateTracker({mcf:0,ti:0,gi:0,opex:0,mp:0,pp:0,rent:0,coc:0,cr:0});
 </script>
