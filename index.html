@@ -194,6 +194,10 @@ body {
   background:linear-gradient(135deg,#0C1E3C 30%,#1D52C4 100%);
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
+[data-theme="dark"] .auth-logo h1 {
+  background:linear-gradient(135deg,#93C5FD 20%,#FFFFFF 100%);
+  -webkit-background-clip:text; background-clip:text;
+}
 .auth-logo p { font-size:13px; color:var(--txt2); margin-top:5px; }
 .auth-card {
   background:var(--surface); -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
@@ -866,10 +870,12 @@ hr.div { border:none; border-top:1px solid var(--blue-100); margin:5px 0; }
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           Sign Out
         </div>
+      </div><!-- /user-dropdown -->
       </div><!-- /user-menu-wrap -->
     </div><!-- /header-right -->
   </div><!-- /header-bar -->
-  <div class="tab-bar">
+
+  <!-- TABS -->
     <button class="tab-btn active" onclick="showTab('a')">Analyzer</button>
     <button class="tab-btn" onclick="showTab('c')">Compare <span class="badge badge-hidden" id="cb">0</span></button>
     <button class="tab-btn" onclick="showTab('s')">Saved <span class="badge badge-hidden" id="sb">0</span></button>
